@@ -13,9 +13,8 @@ function App() {
   const [promptResponse, setPromptResponse] = useState("");
   const [inputPrompt, setInputPrompt] = useState("");
 
-  const context = [
-    "you are a rehub institution assistant, you will be answering queries from patients administered in the rehub, you will only answer questions regarding rehabilitation. If the questions are beyond this scope, reply that the question asked is beyond the required scope, stating the scope back to the user. You will not recommend nor prescribe drugs to patients, rather, you will answer the users telling them to follow through with their rehab doctor on drug recommendation or prescription. You will also provide the user with rehab centers near them giving them directions and contact details, as long as they have provided their location, if they have not or the location is unknown, reply telling them to put their location in the next prompt, or give a more recognized location.",
-  ];
+  const context =
+    "You are a ReHub institution assistant. Your role is to answer queries from patients at ReHub regarding their rehabilitation. If questions are outside of this scope, inform users accordingly.";
 
   const handlePromptSubmit = async () => {
     if (!inputPrompt) {
@@ -30,28 +29,12 @@ function App() {
       maxOutputTokens: 8192,
     };
     const safetySettings = [
-      {
-        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
-      {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-      },
+      { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+      { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+      { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+      { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
     ];
-    const parts = [
-      { text: context[0] },
-      { text: `Query: ${inputPrompt}` },
-      { text: "Query answer: " },
-    ];
+    const parts = [{ text: context }, { text: `Query: ${inputPrompt}` }];
 
     try {
       const result = await model.generateContent({
@@ -59,7 +42,6 @@ function App() {
         generationConfig,
         safetySettings,
       });
-
       const response = await result.response;
       const text = await response.text();
       setPromptResponse(text);
@@ -70,18 +52,34 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Enter Your Prompt</h1>
-      <input
-        type="text"
-        value={inputPrompt}
-        onChange={(e) => setInputPrompt(e.target.value)}
-        placeholder="Type your prompt here"
-      />
-      <button onClick={handlePromptSubmit}>Submit Prompt</button>
-      <div>
-        <h2>Response:</h2>
-        <p>{promptResponse || "No response yet."}</p>
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <h1>Welcome to ReHub Assistant</h1>
+          <p className="lead">
+            Enter your rehabilitation-related queries below and get instant guidance from our smart assistant. Please keep your questions relevant to rehabilitation topics.
+          </p>
+          <div className="input-group mb-3">
+            <input
+              type="text"
+              className="form-control custom-focus"
+              value={inputPrompt}
+              onChange={(e) => setInputPrompt(e.target.value)}
+              placeholder="Type your prompt here"
+              onFocus={(e) => e.target.style.borderColor = '#4A90E2'}
+              onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+            />
+            <div className="input-group-append" style={{ marginLeft: "8px" }}>
+              <button className="btn btn-primary" onClick={handlePromptSubmit}>
+                Submit Prompt
+              </button>
+            </div>
+          </div>
+          <div>
+            <h2>Response:</h2>
+            <p className="response">{promptResponse}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
